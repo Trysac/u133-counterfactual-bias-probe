@@ -1,29 +1,22 @@
 # Architecture
 
-## Purpose
+`counterfactual_bias_probe` is a deterministic, dependency-free reference library designed to perform counterfactual fairness probe expansions, evaluations, and disparity analysis.
 
-`trysac-counterfactual-bias-probe` is a small, dependency-free Python library: Counterfactual bias probes: expand templates over paired attribute values, score each prompt through an injected scorer and report per-group gaps
+## Components
 
-## Shape
+1. **Template Parsing & Expansion (`expand`)**:
+   - Tokenizes templates with custom brace handling (`{{` and `}}` are literals; `{name}` is a placeholder).
+   - Strictly rejects invalid templates, ambiguous syntax, or multiple attributes per template.
+   - Generates paired `Probe` objects across demographic or counterfactual groups.
 
-```text
-caller code --> counterfactual_bias_probe (public API in __init__.py)
-                    |
-                    +-- pure functions, no I/O, no global state
-```
+2. **Scoring Protocol & LLM Scorer (`LLMPort`, `Scorer`, `LLMScorer`, `RecordedLLM`, `FakeLLM`)**:
+   - Adapts to any scoring engine conforming to `Scorer`.
+   - `LLMScorer` formats prompts with a standardized system instruction and extracts continuous scores in `[0.0, 1.0]`.
 
-- **Public API**: the names listed in `__all__` of `src/counterfactual_bias_probe/__init__.py`. Anything else is
-  internal and may change without a major version.
-- **Errors**: invalid input raises built-in exceptions (`ValueError`, `TypeError`) with a clear
-  message; the library never prints or exits.
-- **Side effects**: none. If a feature needs I/O, isolate it in its own module behind a small
-  interface and record the choice in an ADR.
+3. **Evaluation Pipeline (`run_probes`)**:
+   - Evaluates probes through a scorer and validates returned scores.
+   - Emits structured telemetry events without leaking attribute values or probe texts.
 
-## Quality contract
-
-`scripts/check.py` is the single definition of the gates; `fabrica.json` tells the factory and CI
-how to run it. See [TESTING.md](TESTING.md).
-
-## Decisions
-
-Architecture decisions are recorded in [decisions/](decisions/) as numbered ADRs.
+4. **Disparity Analysis (`summarize`, `to_dict`)**:
+   - Computes group means, maximal group disparity (`gap`), and mean absolute paired differences across matching indices.
+   - Flags disparities exceeding a configured threshold with float precision tolerance.

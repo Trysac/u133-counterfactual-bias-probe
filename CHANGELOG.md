@@ -9,4 +9,5 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- Implement counterfactual bias probe template expansion, LLM scoring, and paired gap summarization
 - Initial project structure from the factory utility template.

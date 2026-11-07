@@ -1,20 +1,10 @@
 # Testing
 
-## Running
+## Tests
 
-```sh
-uv run pytest --cov=counterfactual_bias_probe   # tests with coverage report
-uv run python scripts/check.py      # every gate, as CI and the factory run it
-```
+Existing tests in `tests/test_counterfactual_bias_probe.py` cover:
 
-## Policy
-
-- Branch coverage of `src/counterfactual_bias_probe` must stay at or above 80 %; the gate fails below it.
-- Tests exercise the public API (`import counterfactual_bias_probe`) and assert every observable effect:
-  return values, raised exceptions and their messages.
-- Each bug fix starts with a failing test that reproduces it.
-- Tests are deterministic: no network, no wall clock, no dependence on test order.
-
-## Layout
-
-`tests/test_<module>.py` mirrors each public module. Shared fixtures go in `tests/conftest.py`.
+- Template parsing: brace handling, placeholder validation, multi-attribute rejection.
+- Expansion: paired generation logic, group parity enforcement, prompt limit handling.
+- Scoring: LLMScorer score extraction (regex parsing, boundary checks), error handling for invalid replies.
+- Analysis: `summarize` logic for group means, gap calculation, and threshold-based flagging.
