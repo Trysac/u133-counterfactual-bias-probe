@@ -1,0 +1,16 @@
+# counterfactual-bias-probe
+
+> Counterfactual bias probes: expand templates over paired attribute values, score each prompt through an injected scorer and report per-group gaps Python package `trysac-counterfactual-bias-probe`, import name `counterfactual_bias_probe`, MIT licensed,
+> Python >= 3.10, no runtime dependencies.
+
+## Docs
+
+- [README](README.md): problem, install, usage example
+- [AGENTS](AGENTS.md): commands, folder map, conventions, limits
+- [Architecture](docs/ARCHITECTURE.md): shape of the package and its public API
+- [Testing](docs/TESTING.md): how to run and extend the tests
+
+## Optional
+
+- [Stack](docs/STACK.md): tools used and discarded
+- [Changelog](CHANGELOG.md): release history
