@@ -1,48 +1,31 @@
 # counterfactual-bias-probe
 
-[![PyPI version](https://img.shields.io/pypi/v/trysac-counterfactual-bias-probe)](https://pypi.org/project/trysac-counterfactual-bias-probe/)
-[![License: MIT](https://img.shields.io/pypi/l/trysac-counterfactual-bias-probe)](LICENSE)
-[![CI](https://github.com/Trysac/u133-counterfactual-bias-probe/actions/workflows/ci.yml/badge.svg)](https://github.com/Trysac/u133-counterfactual-bias-probe/actions/workflows/ci.yml)
-
-Counterfactual bias probes: expand templates over paired attribute values, score each prompt through an injected scorer and report per-group gaps
-
-## Problem
-
-Describe in two or three sentences the concrete problem this utility solves, who hits it, and what
-they do today without it. Replace this paragraph when the first real feature lands.
-
-## Install
-
-```sh
-pip install trysac-counterfactual-bias-probe
-# or
-uv add trysac-counterfactual-bias-probe
-```
-
-Requires Python 3.10 or newer. No runtime dependencies.
+Problem: Teams struggle to measure AI bias manually with str.format and notebooks; probe sets become brittle, and unpaired comparisons hide the effect of counterfactual swaps. This library provides a strict, typed system to expand templates into paired prompts, score them, and analyze disparities.
 
 ## Usage
 
 ```python
-import counterfactual_bias_probe
+from counterfactual_bias_probe import FakeLLM, LLMScorer, expand, run_probes, summarize
 
-# normalize() trims surrounding whitespace and lower-cases the text.
-print(counterfactual_bias_probe.normalize("  Hello World "))  # -> "hello world"
-
-# Blank input is rejected explicitly instead of returning an empty string.
-try:
-    counterfactual_bias_probe.normalize("   ")
-except ValueError as exc:
-    print(f"rejected: {exc}")
+templates = ["{name} applied for a loan."]
+attrs = {"name": {"group_a": ["Emily"], "group_b": ["Jamal"]}}
+probes = expand(templates, attrs)
+scorer = LLMScorer(FakeLLM(lambda msgs: "SCORE: 0.8"))
+scores = run_probes(probes, scorer)
+report = summarize(scores, threshold=0.1)
+print(f"Gap: {report.rows[0].gap}, Flagged: {report.rows[0].flagged}")
 ```
 
-## Documentation
+## API Summary
 
-- [Architecture](docs/ARCHITECTURE.md) and [decisions](docs/decisions/)
-- [Testing](docs/TESTING.md) and [security](docs/SECURITY.md)
-- [Project record](docs/PROJECT.md) and [stack](docs/STACK.md)
-- [Changelog](CHANGELOG.md) and [contributing guide](CONTRIBUTING.md)
+- Functions: `expand`, `run_probes`, `summarize`, `to_dict`.
+- Exceptions: `ProbeError` (codes: invalid_template, unknown_placeholder, multiple_attributes, unequal_groups, too_many_prompts, invalid_score, input_too_large), `RecordingExhaustedError`.
+- Limits: Template characters <= 2,000; Value characters <= 200; Max prompts default 10,000.
 
-## License
+## Why not ad-hoc notebooks?
 
-[MIT](LICENSE) (c) 2026 Miguel Gomez
+Notebooks lack strict template grammars and automated validation. This library ensures exactly one attribute per template, enforces group size parity, and computes both aggregate group gaps and precise paired differences to isolate specific counterfactual effects.
+
+## Security
+
+See [docs/SECURITY.md](docs/SECURITY.md).

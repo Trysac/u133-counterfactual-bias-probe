@@ -2,18 +2,5 @@
 
 ## Threat model
 
-`trysac-counterfactual-bias-probe` is a pure library without I/O. The main risks are:
-
-- **Supply chain**: a compromised dependency or CI action. Mitigation: no runtime dependencies,
-  Dependabot weekly updates, actions pinned to major versions, minimal workflow permissions.
-- **Leaked secrets**: tokens committed by mistake. Mitigation: `gitleaks` runs in the local gates
-  and in CI; `.env` files are git-ignored.
-- **Untrusted input**: callers may pass hostile strings. Mitigation: validate input and fail with
-  explicit exceptions; never `eval`, `exec` or deserialize untrusted data.
-
-## Publishing
-
-Releases are published to PyPI with trusted publishing (OIDC) when available, never with a
-long-lived token stored in the repository.
-
-To report a vulnerability, see [SECURITY.md](../SECURITY.md).
+- Defended: Supply chain attacks via runtime dependency elimination; untrusted input via `ProbeError` validation; credential leaks via git-ignored local configuration.
+- Not defended: The library does not sanitize model output beyond score parsing (i.e., downstream prompt injection inside the LLM reply is the responsibility of the system using the library). It does not sanitize LLM inputs against injection beyond template length limits.
